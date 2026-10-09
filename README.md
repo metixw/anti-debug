@@ -1,41 +1,22 @@
-# Anti-Debug Tricks
+# anti debug tricks
 
-A collection of undocumented and lesser-known anti-debugging techniques for Windows, discovered through reverse engineering, experimentation, and debugging analysis.
+just a collection of some undocumented anti debug tricks i've found while reversing and messing around with debuggers.
 
-This repository will be updated with additional tricks over time.
+i'll add more stuff here whenever i find something interesting.
 
-## Tricks
+## 1. executable lock detection
 
-### 01 — Executable Lock Detection (ELD)
+found this one while doing some ttd analysis. it's not an actual anti debug feature or anything, just a weird file sharing behavior that can be used to detect x64dbg.
 
-**Category:** File System / Anti-Debug  
-**Platform:** Windows  
-**Target:** x64dbg  
-**Discovered by:** [@metixw](https://github.com/metixw)  
-**Difficulty to bypass:** Easy
+from what i've seen, this has been around for like 10 years and still hasn't been fixed in x64dbg.
 
-#### Description
+i've used this in some of my anticheats before and never really saw anyone talking about it. it's nothing crazy tho, pretty easy to patch once you know what's going on.
 
-An undocumented anti-debugging trick discovered through **Time Travel Debugging (TTD)** analysis.
+basically, it tries to open its own executable with exclusive access. if something else is holding a conflicting handle to the file, `CreateFileA` fails with `ERROR_SHARING_VIOLATION`.
 
-This technique does not rely on traditional anti-debugging APIs such as `IsDebuggerPresent` or `CheckRemoteDebuggerPresent`.
+this doesn't necessarily mean a debugger is attached, but it can work as a detection trick in certain cases.
 
-Instead, it exploits file-sharing behavior observed when debugging an executable with **x64dbg**.
-
-The issue has reportedly existed for over 10 years and remains unpatched in certain x64dbg configurations.
-
-This trick has been used in private anti-cheat implementations without being publicly documented, although it can be bypassed relatively easily.
-
-#### How It Works
-
-1. Retrieve the current executable path using `GetModuleFileNameA`.
-2. Attempt to open the executable using `CreateFileA` with exclusive sharing access.
-3. Check whether the operation fails with `ERROR_SHARING_VIOLATION`.
-4. Treat the sharing violation as a potential debugger indicator.
-
-**Note:** This is a heuristic, not a reliable debugger detection mechanism. Other processes can cause sharing violations, and debugger behavior may vary by version and configuration.
-
-#### Proof of Concept
+### code
 
 ```cpp
 // made by metixw ( @metixw )
@@ -69,21 +50,4 @@ int main()
 }
 ```
 
-#### Limitations
-
-- Can produce false positives.
-- Does not detect every debugger.
-- Can be bypassed by patching the check or changing file-sharing behavior.
-- Detection depends on how the debugger handles the executable file.
-
----
-
-## Credits
-
-**Research & Discovery:** metixw (@metixw)
-
-## Disclaimer
-
-This repository is intended for educational purposes, reverse engineering research, and anti-cheat development.
-
-More techniques will be added over time.
+more tricks soon.
