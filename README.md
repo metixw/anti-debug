@@ -32,7 +32,7 @@ bool walahi()
     CloseHandle(h);
     return false;
 }
-
+ // just an example but if u wanna use it as an anti-debug trick put it in a thread 
 int main()
 {
     while (true)
